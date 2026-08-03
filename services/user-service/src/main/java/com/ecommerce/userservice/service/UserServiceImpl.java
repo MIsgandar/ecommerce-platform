@@ -1,11 +1,18 @@
 package com.ecommerce.userservice.service;
 
 
+import com.ecommerce.userservice.dto.AuthenticationResponse;
+import com.ecommerce.userservice.dto.LoginRequest;
 import com.ecommerce.userservice.dto.RegisterUserRequest;
 import com.ecommerce.userservice.dto.UserResponse;
 import com.ecommerce.userservice.entity.User;
 import com.ecommerce.userservice.repository.UserRepo;
+import com.ecommerce.userservice.security.JwtService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -13,9 +20,10 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class UserServiceImpl implements UserService{
 
-
+    private final AuthenticationManager authenticationManager;
     private final UserRepo userRepo;
     private final PasswordEncoder passwordEncoder;
+    private final JwtService jwtService;
 
     public UserResponse register (RegisterUserRequest request) {
 
@@ -34,6 +42,23 @@ public class UserServiceImpl implements UserService{
                 savedUser.getFirstName(),
                 savedUser.getLastName()
         );
+    }
+
+    public AuthenticationResponse login(LoginRequest request) {
+
+        authenticationManager.authenticate(
+
+                new UsernamePasswordAuthenticationToken(
+                        request.email(),
+                        request.password()
+                )
+
+        );
+
+
+        String token = jwtService.generateToken(request.email());
+
+        return new AuthenticationResponse(token);
     }
 
 }

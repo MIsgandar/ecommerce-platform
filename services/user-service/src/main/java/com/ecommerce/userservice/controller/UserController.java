@@ -1,5 +1,7 @@
 package com.ecommerce.userservice.controller;
 
+import com.ecommerce.userservice.dto.AuthenticationResponse;
+import com.ecommerce.userservice.dto.LoginRequest;
 import com.ecommerce.userservice.dto.RegisterUserRequest;
 import com.ecommerce.userservice.dto.UserResponse;
 import com.ecommerce.userservice.service.UserService;
@@ -18,6 +20,12 @@ public class UserController {
     public UserResponse register(@Valid @RequestBody RegisterUserRequest request)
     {
         return userService.register(request);
+    }
+
+    @PostMapping("/login")
+    public AuthenticationResponse login(@RequestBody LoginRequest request) {
+
+       return userService.login(request);
     }
 
 }

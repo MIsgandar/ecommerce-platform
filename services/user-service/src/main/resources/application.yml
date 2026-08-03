@@ -28,6 +28,13 @@ spring:
 
     locations: classpath:db/migration
 
+jwt:
+
+  secret: 8K8MZ5xXW2X+2slmRrPwL8nN0uM8c2QM5O8P2rVnF0E=
+
+  expiration: 900000
+
 logging:
   level:
     org.flywaydb: DEBUG
+
