@@ -1,12 +1,11 @@
 package com.ecommerce.userservice.controller;
 
-import com.ecommerce.userservice.dto.AuthenticationResponse;
-import com.ecommerce.userservice.dto.LoginRequest;
-import com.ecommerce.userservice.dto.RegisterUserRequest;
-import com.ecommerce.userservice.dto.UserResponse;
+import com.ecommerce.userservice.dto.*;
 import com.ecommerce.userservice.service.UserService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -28,4 +27,12 @@ public class UserController {
        return userService.login(request);
     }
 
+    @GetMapping("/me")
+    public UserProfileResponse getCurrentUser(
+            @AuthenticationPrincipal UserDetails userDetails
+    ) {
+
+        return userService.getCurrentUser(userDetails.getUsername());
+
+    }
 }

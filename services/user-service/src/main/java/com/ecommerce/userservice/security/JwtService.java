@@ -22,8 +22,12 @@ public class JwtService {
 
 
     /**
-     * Generates a JWT for the authenticated user.
+     * Generates a JWT token for an authenticated user.
+     *
+     * @param email authenticated user's email
+     * @return signed JWT token
      */
+
     public String generateToken(String email) {
 
         return Jwts.builder()
