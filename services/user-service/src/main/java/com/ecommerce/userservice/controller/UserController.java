@@ -1,9 +1,11 @@
 package com.ecommerce.userservice.controller;
 
 import com.ecommerce.userservice.dto.*;
+import com.ecommerce.userservice.security.SecurityUtils;
 import com.ecommerce.userservice.service.UserService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
@@ -28,11 +30,13 @@ public class UserController {
     }
 
     @GetMapping("/me")
-    public UserProfileResponse getCurrentUser(
-            @AuthenticationPrincipal UserDetails userDetails
-    ) {
+    public UserProfileResponse getCurrentUser() {
 
-        return userService.getCurrentUser(userDetails.getUsername());
+        Authentication authentication = SecurityUtils.getCurrentUserEmail();
+
+        String email = authentication.getName();
+
+        return userService.getCurrentUser(email);
 
     }
 }

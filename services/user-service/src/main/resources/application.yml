@@ -1,6 +1,18 @@
 server:
   port: 8081
 
+app:
+
+  admin:
+
+    email: ${ADMIN_EMAIL:admin@shop.com}
+
+    password: ${ADMIN_PASSWORD:admin123}
+
+    first-name: System
+
+    last-name: Administrator
+
 
 spring:
 
@@ -10,7 +22,7 @@ spring:
 
     username: postgres
 
-    password: 19931993
+    password: postgres
 
 
   jpa:

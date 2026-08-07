@@ -2,6 +2,7 @@ package com.ecommerce.userservice.service;
 
 
 import com.ecommerce.userservice.dto.*;
+import com.ecommerce.userservice.entity.Role;
 import com.ecommerce.userservice.entity.User;
 import com.ecommerce.userservice.repository.UserRepo;
 import com.ecommerce.userservice.security.JwtService;
@@ -30,6 +31,7 @@ public class UserServiceImpl implements UserService{
                 .password(passwordEncoder.encode(request.password()))
                 .firstName(request.firstName())
                 .lastName(request.lastName())
+                .role(Role.CUSTOMER)
                 .build();
 
         User savedUser = userRepo.save(user);
@@ -50,7 +52,6 @@ public class UserServiceImpl implements UserService{
                         request.email(),
                         request.password()
                 )
-
         );
 
 
