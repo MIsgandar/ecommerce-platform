@@ -1,10 +1,9 @@
 package com.ecommerce.productservice.dto;
 
 import jakarta.validation.constraints.*;
-import org.hibernate.tool.schema.spi.SchemaTruncator;
-
 import java.math.BigDecimal;
 import java.util.UUID;
+
 
 public record CreateProductRequest (
 

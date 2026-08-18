@@ -5,10 +5,11 @@ import com.ecommerce.productservice.dto.ProductResponse;
 import com.ecommerce.productservice.dto.UpdateProductRequest;
 import com.ecommerce.productservice.service.ProductService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
 import java.util.List;
 import java.util.UUID;
 
@@ -32,9 +33,10 @@ public class ProductController {
     }
 
     @GetMapping
-    public ResponseEntity<List<ProductResponse>> getAllProducts() {
+    public ResponseEntity<Page<ProductResponse>> getAllProducts(
+            Pageable pageable) {
 
-        return ResponseEntity.ok(productService.getAllProducts());
+        return ResponseEntity.ok(productService.getAllProducts(pageable));
     }
 
     @GetMapping("/{id}")
@@ -42,7 +44,7 @@ public class ProductController {
 
         ProductResponse response = productService.getProduct(id);
 
-        return ResponseEntity.ok(productService.getProduct(id));
+        return ResponseEntity.ok(response);
 
     }
 

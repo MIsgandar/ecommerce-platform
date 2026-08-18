@@ -13,9 +13,10 @@ import com.ecommerce.productservice.exception.ProductNotFoundException;
 import com.ecommerce.productservice.repository.CategoryRepo;
 import com.ecommerce.productservice.repository.ProductRepo;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
 import java.util.List;
 import java.util.UUID;
 
@@ -27,11 +28,12 @@ public class ProductServiceImpl implements ProductService {
     private final ProductRepo productRepo;
     private final CategoryRepo categoryRepo;
 
+    @Override
     public ProductResponse createProduct(CreateProductRequest request) {
 
         if(productRepo.existsBySku(request.sku())) {
             throw new ProductAlreadyExistsException(
-                    "product with SKU already exists" + request.sku()
+                    "product with SKU already exists: " + request.sku()
             );
         }
             Category category = categoryRepo.findById(request.categoryId())
@@ -54,25 +56,25 @@ public class ProductServiceImpl implements ProductService {
             return mapToResponse(savedProduct);
         }
 
+        @Override
         public ProductResponse getProduct(UUID id) {
 
         Product product = productRepo.findById(id)
                 .orElseThrow(() -> new ProductNotFoundException(
-                        "Product not found: " + id
+                        "Product not found with ID: " + id
                 ));
 
         return mapToResponse(product);
         }
 
     @Override
-    public List<ProductResponse> getAllProducts() {
+    public Page<ProductResponse> getAllProducts(Pageable pageable) {
 
-        return productRepo.findAll()
-                .stream()
-                .map(this::mapToResponse)
-                .toList();
+        return productRepo.findAll(pageable)
+                .map(this::mapToResponse);
     }
 
+    @Override
     public ProductResponse updateProduct(UUID id, UpdateProductRequest request) {
 
 
@@ -93,11 +95,12 @@ public class ProductServiceImpl implements ProductService {
         return mapToResponse(product);
     }
 
+    @Override
     public void deleteProduct(UUID id) {
 
         Product product = productRepo.findById(id)
                 .orElseThrow(() -> new ProductNotFoundException(
-                        "Product not found: " +id
+                        "Product not found: " + id
                 ));
 
         productRepo.delete(product);
