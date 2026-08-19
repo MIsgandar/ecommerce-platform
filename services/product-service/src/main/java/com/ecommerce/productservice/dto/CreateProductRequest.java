@@ -1,5 +1,6 @@
 package com.ecommerce.productservice.dto;
 
+import com.ecommerce.productservice.entity.ProductStatus;
 import jakarta.validation.constraints.*;
 import java.math.BigDecimal;
 import java.util.UUID;
@@ -38,7 +39,9 @@ public record CreateProductRequest (
         Integer quantity,
 
         @NotNull(message = "Category ID is required")
-        UUID categoryId
+        UUID categoryId,
+
+        ProductStatus productStatus
 )
 {
 

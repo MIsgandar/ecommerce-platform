@@ -47,7 +47,7 @@ public class ProductServiceImpl implements ProductService {
                     .description(request.description())
                     .price(request.price())
                     .quantity(request.quantity())
-                    .status(ProductStatus.ACTIVE)
+                    .status(request.productStatus())
                     .category(category)
                     .build();
 
@@ -68,10 +68,24 @@ public class ProductServiceImpl implements ProductService {
         }
 
     @Override
-    public Page<ProductResponse> getAllProducts(Pageable pageable) {
+    public Page<ProductResponse> getAllProducts(ProductStatus productStatus,
+                                                UUID categoryId,
+                                                Pageable pageable) {
 
-        return productRepo.findAll(pageable)
-                .map(this::mapToResponse);
+        Page<Product> products;
+
+        if(productStatus == null && categoryId == null) {
+            products = productRepo.findAll(pageable);
+        }
+        else if(productStatus != null && categoryId == null) {
+            products = productRepo.findByStatus(productStatus, pageable);
+        } else if (productStatus == null && categoryId != null) {
+            products = productRepo.findByCategoryId(categoryId, pageable);
+        } else {
+            products = productRepo.findByStatusAndCategoryId(
+                    productStatus,categoryId,pageable);
+        }
+        return products.map(this::mapToResponse);
     }
 
     @Override

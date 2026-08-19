@@ -3,6 +3,7 @@ package com.ecommerce.productservice.controller;
 import com.ecommerce.productservice.dto.CreateProductRequest;
 import com.ecommerce.productservice.dto.ProductResponse;
 import com.ecommerce.productservice.dto.UpdateProductRequest;
+import com.ecommerce.productservice.entity.ProductStatus;
 import com.ecommerce.productservice.service.ProductService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -10,7 +11,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import java.util.List;
 import java.util.UUID;
 
 @RestController
@@ -34,9 +34,13 @@ public class ProductController {
 
     @GetMapping
     public ResponseEntity<Page<ProductResponse>> getAllProducts(
+            @RequestParam(name = "status", required = false) ProductStatus productStatus,
+            @RequestParam(required = false) UUID categoryId,
             Pageable pageable) {
 
-        return ResponseEntity.ok(productService.getAllProducts(pageable));
+        return ResponseEntity.ok(
+                productService.getAllProducts(productStatus, categoryId, pageable)
+        );
     }
 
     @GetMapping("/{id}")
