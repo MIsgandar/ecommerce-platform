@@ -9,4 +9,5 @@ public interface CategoryRepo extends JpaRepository<Category, UUID> {
 
     boolean existsByName(String name);
 
+    boolean existsByNameAndIdNot(String name, UUID id);
 }

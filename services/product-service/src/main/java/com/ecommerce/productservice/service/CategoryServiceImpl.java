@@ -4,8 +4,10 @@ import com.ecommerce.productservice.dto.CategoryResponse;
 import com.ecommerce.productservice.dto.CreateCategoryRequest;
 import com.ecommerce.productservice.entity.Category;
 import com.ecommerce.productservice.exception.CategoryAlreadyExistsException;
+import com.ecommerce.productservice.exception.CategoryInUseException;
 import com.ecommerce.productservice.exception.CategoryNotFoundException;
 import com.ecommerce.productservice.repository.CategoryRepo;
+import com.ecommerce.productservice.repository.ProductRepo;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -20,6 +22,7 @@ public class CategoryServiceImpl implements CategoryService{
 
 
     private final CategoryRepo categoryRepo;
+    private final ProductRepo productRepo;
 
     @Override
     public CategoryResponse createCategory(CreateCategoryRequest request) {
@@ -71,6 +74,12 @@ public class CategoryServiceImpl implements CategoryService{
                         "Category not found with id: " +id
                 ));
 
+        if(categoryRepo.existsByNameAndIdNot(request.name(), id)) {
+            throw new CategoryAlreadyExistsException(
+                    "Category already exists: " + request.name()
+            );
+        }
+
         category.setName(request.name());
         category.setDescription(request.description());
 
@@ -84,6 +93,12 @@ public class CategoryServiceImpl implements CategoryService{
                 .orElseThrow(() -> new CategoryNotFoundException(
                         "Category not found with id: " + id
                 ));
+
+        if (productRepo.existsByCategoryId(id)) {
+            throw new CategoryInUseException(
+                    "Category cannot be deleted because it is used by products: " + id
+            );
+        }
 
         categoryRepo.delete(category);
 

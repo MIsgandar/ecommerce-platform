@@ -12,6 +12,8 @@ public interface ProductRepo extends JpaRepository<Product, UUID> {
 
     boolean existsBySku(String sku);
 
+    boolean existsByCategoryId(UUID categoryId);
+
     Page<Product> findByStatus(ProductStatus status, Pageable pageable);
 
     Page<Product> findByCategoryId(UUID categoryId, Pageable pageable);
