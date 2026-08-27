@@ -3,10 +3,12 @@ package com.ecommerce.productservice.exception;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.ErrorResponse;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
+import javax.swing.plaf.basic.BasicButtonUI;
 import java.time.Instant;
 import java.util.HashMap;
 import java.util.Map;
@@ -43,6 +45,30 @@ public class GlobalExceptionHandler {
                 HttpStatus.CONFLICT,
                 exception.getMessage()
         );
+    }
+
+    @ExceptionHandler(CategoryAlreadyExistsException.class)
+    public ResponseEntity<Map<String, Object>> handleCategoryAlreadyExists(
+            CategoryAlreadyExistsException exception
+    ) {
+
+        return buildResponse(
+                HttpStatus.CONFLICT,
+                exception.getMessage()
+        );
+
+    }
+
+    @ExceptionHandler(CategoryInUseException.class)
+    public ResponseEntity<Map<String, Object>> handleCategoryInUse(
+            CategoryInUseException exception
+    ) {
+
+        return buildResponse(
+                HttpStatus.CONFLICT,
+                exception.getMessage()
+        );
+
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
