@@ -5,10 +5,14 @@ import com.ecommerce.userservice.security.SecurityUtils;
 import com.ecommerce.userservice.service.UserService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/users")
@@ -38,5 +42,11 @@ public class UserController {
 
         return userService.getCurrentUser(email);
 
+    }
+
+    @GetMapping("/products/{productId}")
+    public ProductResponse getProduct(@PathVariable UUID productId) {
+
+        return userService.getProduct(productId);
     }
 }

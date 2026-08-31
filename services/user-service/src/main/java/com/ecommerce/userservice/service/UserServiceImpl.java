@@ -1,6 +1,7 @@
 package com.ecommerce.userservice.service;
 
 
+import com.ecommerce.userservice.client.ProductClient;
 import com.ecommerce.userservice.dto.*;
 import com.ecommerce.userservice.entity.Role;
 import com.ecommerce.userservice.entity.User;
@@ -15,6 +16,8 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.UUID;
+
 @Service
 @RequiredArgsConstructor
 public class UserServiceImpl implements UserService{
@@ -23,6 +26,7 @@ public class UserServiceImpl implements UserService{
     private final UserRepo userRepo;
     private final PasswordEncoder passwordEncoder;
     private final JwtService jwtService;
+    private final ProductClient productClient;
 
     public UserResponse register (RegisterUserRequest request) {
 
@@ -76,6 +80,11 @@ public class UserServiceImpl implements UserService{
 
         );
 
+    }
+
+    public ProductResponse getProduct(UUID productId) {
+
+        return productClient.getProduct(productId);
     }
 
 }

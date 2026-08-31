@@ -50,3 +50,6 @@ logging:
   level:
     org.flywaydb: DEBUG
 
+product-service:
+  url: http://localhost:8082
+
