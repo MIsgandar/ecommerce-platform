@@ -1,4 +1,9 @@
-package com.ecommerce.userservice.excepption;
+package com.ecommerce.userservice.exception;
 
-public class ProductNotFoundException {
+public class ProductNotFoundException extends RuntimeException {
+
+    public ProductNotFoundException(String message) {
+        super(message);
+    }
+
 }

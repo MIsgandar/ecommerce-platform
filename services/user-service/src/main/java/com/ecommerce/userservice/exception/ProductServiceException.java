@@ -1,4 +1,12 @@
 package com.ecommerce.userservice.exception;
 
-public class ProductServiceException {
+public class ProductServiceException extends RuntimeException{
+
+    public ProductServiceException(String message) {
+        super(message);
+    }
+    public ProductServiceException(String message, Throwable cause) {
+        super(message, cause);
+    }
+
 }
