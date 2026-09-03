@@ -70,3 +70,5 @@ failsafe-reports/
 # Coverage Reports
 # ==========================
 coverage/
+.idea/
+*.iml
