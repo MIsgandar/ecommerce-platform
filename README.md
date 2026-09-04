@@ -2,8 +2,8 @@
 
 This project uses JWT authentication with Spring Security.
 
-### Authentication Flow
-
+### Authentication Flow ###
+ 
 1. User logs in with email and password.
 2. Spring Security authenticates the user.
 3. A JWT is generated.
@@ -11,6 +11,6 @@ This project uses JWT authentication with Spring Security.
 5. JwtAuthenticationFilter validates the token.
 6. Protected endpoints become accessible.
 
-Example:
+Example 
 
 Authorization: Bearer <jwt-token>
