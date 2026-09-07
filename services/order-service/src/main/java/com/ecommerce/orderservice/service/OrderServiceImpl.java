@@ -1,13 +1,21 @@
 package com.ecommerce.orderservice.service;
 
-import com.ecommerce.orderservice.dto.CreateOrderRequest;
-import com.ecommerce.orderservice.dto.OrderResponse;
+import com.ecommerce.orderservice.client.ProductClient;
+import com.ecommerce.orderservice.dto.*;
+import com.ecommerce.orderservice.entity.Order;
+import com.ecommerce.orderservice.entity.OrderItem;
+import com.ecommerce.orderservice.entity.OrderStatus;
+import com.ecommerce.orderservice.entity.ProductStatus;
 import com.ecommerce.orderservice.repository.OrderItemRepo;
 import com.ecommerce.orderservice.repository.OrderRepo;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
+import java.time.Instant;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 @Service
@@ -18,12 +26,94 @@ public class OrderServiceImpl implements OrderService {
 
     private final OrderRepo orderRepo;
     private final OrderItemRepo orderItemRepo;
+    private final ProductClient productClient;
 
     @Override
     public OrderResponse createOrder(
-            UUID id, CreateOrderRequest request) {
+            UUID userId, CreateOrderRequest request) {
 
-        return null;
+        List<OrderItem> orderItems  = new ArrayList<>();
+
+        BigDecimal totalAmount = BigDecimal.ZERO;
+
+        for(CreateOrderItemRequest itemRequest : request.items()) {
+
+            ProductResponse product =
+                    productClient.getProduct(itemRequest.productId());
+
+            if(product.status() != ProductStatus.ACTIVE.name()) {
+
+                throw new IllegalStateException(
+                        "Product is not active: " + product.id()
+                );
+            }
+
+            if(product.quantity() < itemRequest.quantity()) {
+                throw new IllegalStateException(
+                        "Insufficient stock for product: " + product.id()
+                );
+            }
+
+            BigDecimal subTotal = product.price()
+                    .multiply(
+                            BigDecimal.valueOf(itemRequest.quantity())
+                    );
+
+            totalAmount = totalAmount.add(subTotal);
+
+            OrderItem orderItem = OrderItem.builder()
+                    .productId(product.id())
+                    .quantity(itemRequest.quantity())
+                    .unitPrice(product.price())
+                    .subTotal(subTotal)
+                    .build();
+
+            orderItems.add(orderItem);
+        }
+
+        Instant now = Instant.now();
+
+        Order order = Order.builder()
+                .userId(userId)
+                .status(OrderStatus.PENDING)
+                .totalAmount(totalAmount)
+                .createdAt(now)
+                .updatedAt(now)
+                .build();
+
+        Order savedOrder = orderRepo.save(order);
+
+        for (OrderItem orderItem : orderItems) {
+            orderItem.setOrderId(savedOrder.getId());
+        }
+
+        orderItemRepo.saveAll(orderItems);
+
+        List<OrderItemResponse> itemResponses = orderItems.stream()
+                .map(this::mapToItemResponse)
+                .toList();
+
+        return new OrderResponse(
+                savedOrder.getId(),
+                savedOrder.getUserId(),
+                savedOrder.getStatus(),
+                savedOrder.getTotalAmount(),
+                itemResponses,
+                savedOrder.getCreatedAt(),
+                savedOrder.getUpdatedAt()
+        );
+
+    }
+
+    private OrderItemResponse mapToItemResponse(OrderItem item) {
+
+        return new OrderItemResponse(
+                item.getId(),
+                item.getProductId(),
+                item.getQuantity(),
+                item.getUnitPrice(),
+                item.getSubTotal()
+        );
     }
 
 

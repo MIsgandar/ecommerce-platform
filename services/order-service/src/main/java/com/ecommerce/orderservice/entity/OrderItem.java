@@ -26,7 +26,7 @@ public class OrderItem {
     @Column(name = "product_id", nullable = false)
     private UUID productId;
 
-    @Column
+    @Column(nullable = false)
     private Integer quantity;
 
     @Column(name = "unit_price", nullable = false, precision = 19, scale = 2)
