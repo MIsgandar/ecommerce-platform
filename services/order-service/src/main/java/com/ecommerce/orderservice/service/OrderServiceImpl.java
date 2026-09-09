@@ -6,6 +6,9 @@ import com.ecommerce.orderservice.entity.Order;
 import com.ecommerce.orderservice.entity.OrderItem;
 import com.ecommerce.orderservice.entity.OrderStatus;
 import com.ecommerce.orderservice.entity.ProductStatus;
+import com.ecommerce.orderservice.exception.InsufficientStockException;
+import com.ecommerce.orderservice.exception.OrderNotFoundException;
+import com.ecommerce.orderservice.exception.ProductNotAvailableException;
 import com.ecommerce.orderservice.repository.OrderItemRepo;
 import com.ecommerce.orderservice.repository.OrderRepo;
 import lombok.RequiredArgsConstructor;
@@ -41,15 +44,19 @@ public class OrderServiceImpl implements OrderService {
             ProductResponse product =
                     productClient.getProduct(itemRequest.productId());
 
-            if(product.status() != ProductStatus.ACTIVE.name()) {
+            System.out.println("PRODUCT RESPONSE: " + product);
+            System.out.println("PRODUCT STATUS: [" + product.status() + "]");
+            System.out.println("EXPECTED STATUS: [" + ProductStatus.ACTIVE.name() + "]");
 
-                throw new IllegalStateException(
+            if (!ProductStatus.ACTIVE.name().equals(product.status())) {
+                throw new ProductNotAvailableException(
                         "Product is not active: " + product.id()
                 );
             }
 
+
             if(product.quantity() < itemRequest.quantity()) {
-                throw new IllegalStateException(
+                throw new InsufficientStockException(
                         "Insufficient stock for product: " + product.id()
                 );
             }
@@ -101,6 +108,33 @@ public class OrderServiceImpl implements OrderService {
                 itemResponses,
                 savedOrder.getCreatedAt(),
                 savedOrder.getUpdatedAt()
+        );
+
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public OrderResponse getOrder(UUID orderId) {
+
+        Order order = orderRepo.findById(orderId)
+                .orElseThrow(() -> new OrderNotFoundException(
+                        "Order not found: " + orderId
+                ));
+
+        List<OrderItem> orderItems = orderItemRepo.findByOrderId(orderId);
+
+        List<OrderItemResponse> itemResponses = orderItems.stream()
+                .map(this::mapToItemResponse)
+                .toList();
+
+        return new OrderResponse(
+                order.getId(),
+                order.getUserId(),
+                order.getStatus(),
+                order.getTotalAmount(),
+                itemResponses,
+                order.getCreatedAt(),
+                order.getUpdatedAt()
         );
 
     }

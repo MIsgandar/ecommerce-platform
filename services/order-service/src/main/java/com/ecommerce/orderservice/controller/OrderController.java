@@ -3,12 +3,14 @@ package com.ecommerce.orderservice.controller;
 
 import com.ecommerce.orderservice.dto.CreateOrderRequest;
 import com.ecommerce.orderservice.dto.OrderResponse;
+import com.ecommerce.orderservice.entity.Order;
 import com.ecommerce.orderservice.service.OrderService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.net.http.HttpResponse;
 import java.util.UUID;
 
 @RestController
@@ -28,6 +30,15 @@ public class OrderController {
         OrderResponse response = orderService.createOrder(userId, request);
         return ResponseEntity.ok(response);
 
+    }
+
+    @GetMapping("/{orderId}")
+    public ResponseEntity<OrderResponse> getOrder(
+            @PathVariable UUID orderId
+    ) {
+
+        OrderResponse response = orderService.getOrder(orderId);
+        return ResponseEntity.ok(response);
     }
 
 }

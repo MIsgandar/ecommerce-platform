@@ -10,4 +10,6 @@ public interface OrderService {
 
     OrderResponse createOrder(UUID userId, CreateOrderRequest request);
 
+    OrderResponse getOrder(UUID orderId);
+
 }
