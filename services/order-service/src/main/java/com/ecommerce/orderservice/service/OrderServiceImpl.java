@@ -12,6 +12,8 @@ import com.ecommerce.orderservice.exception.ProductNotAvailableException;
 import com.ecommerce.orderservice.repository.OrderItemRepo;
 import com.ecommerce.orderservice.repository.OrderRepo;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -121,21 +123,8 @@ public class OrderServiceImpl implements OrderService {
                         "Order not found: " + orderId
                 ));
 
-        List<OrderItem> orderItems = orderItemRepo.findByOrderId(orderId);
 
-        List<OrderItemResponse> itemResponses = orderItems.stream()
-                .map(this::mapToItemResponse)
-                .toList();
-
-        return new OrderResponse(
-                order.getId(),
-                order.getUserId(),
-                order.getStatus(),
-                order.getTotalAmount(),
-                itemResponses,
-                order.getCreatedAt(),
-                order.getUpdatedAt()
-        );
+        return mapToOrderResponse(order);
 
     }
 
@@ -148,6 +137,38 @@ public class OrderServiceImpl implements OrderService {
                 item.getUnitPrice(),
                 item.getSubTotal()
         );
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public Page<OrderResponse> getOrderByUser(
+            UUID userId,
+            Pageable pageable
+    ) {
+        return orderRepo
+                .findByUserId(userId, pageable)
+                .map(this::mapToOrderResponse);
+    }
+
+    private OrderResponse mapToOrderResponse(Order order) {
+
+        List<OrderItem> orderItems = orderItemRepo.findByOrderId(order.getId());
+
+        List<OrderItemResponse> itemResponses = orderItems
+                .stream()
+                .map((this::mapToItemResponse))
+                .toList();
+
+        return new OrderResponse(
+                order.getId(),
+                order.getUserId(),
+                order.getStatus(),
+                order.getTotalAmount(),
+                itemResponses,
+                order.getCreatedAt(),
+                order.getUpdatedAt()
+        );
+
     }
 
 

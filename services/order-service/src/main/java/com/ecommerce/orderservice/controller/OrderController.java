@@ -7,6 +7,10 @@ import com.ecommerce.orderservice.entity.Order;
 import com.ecommerce.orderservice.service.OrderService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -39,6 +43,23 @@ public class OrderController {
 
         OrderResponse response = orderService.getOrder(orderId);
         return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/user/{userId}")
+    public ResponseEntity<Page<OrderResponse>> getOrderByUser(
+            @PathVariable UUID userId,
+            @PageableDefault(
+                    size = 10,
+                    sort = "createdAt",
+                    direction = Sort.Direction.DESC
+            )Pageable pageable
+
+            ) {
+
+        Page<OrderResponse> orders = orderService.getOrderByUser(userId, pageable);
+
+        return ResponseEntity.ok(orders);
+
     }
 
 }
