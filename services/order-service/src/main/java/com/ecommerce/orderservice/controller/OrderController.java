@@ -3,7 +3,7 @@ package com.ecommerce.orderservice.controller;
 
 import com.ecommerce.orderservice.dto.CreateOrderRequest;
 import com.ecommerce.orderservice.dto.OrderResponse;
-import com.ecommerce.orderservice.entity.Order;
+import com.ecommerce.orderservice.dto.UpdateOrderStatusRequest;
 import com.ecommerce.orderservice.service.OrderService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -13,8 +13,6 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import java.net.http.HttpResponse;
 import java.util.UUID;
 
 @RestController
@@ -59,6 +57,18 @@ public class OrderController {
         Page<OrderResponse> orders = orderService.getOrderByUser(userId, pageable);
 
         return ResponseEntity.ok(orders);
+
+    }
+
+    @PatchMapping("/{orderId}/status")
+    public ResponseEntity<OrderResponse> updateOrderStatus(
+            @PathVariable UUID orderId,
+            @Valid @RequestBody UpdateOrderStatusRequest request
+            ) {
+
+        OrderResponse response = orderService.updateOrderStatus(orderId, request);
+
+        return ResponseEntity.ok(response);
 
     }
 

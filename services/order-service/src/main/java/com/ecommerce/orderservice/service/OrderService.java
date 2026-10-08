@@ -3,6 +3,7 @@ package com.ecommerce.orderservice.service;
 
 import com.ecommerce.orderservice.dto.CreateOrderRequest;
 import com.ecommerce.orderservice.dto.OrderResponse;
+import com.ecommerce.orderservice.dto.UpdateOrderStatusRequest;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
@@ -15,5 +16,7 @@ public interface OrderService {
     OrderResponse getOrder(UUID orderId);
 
     Page<OrderResponse> getOrderByUser(UUID userId, Pageable pageable);
+
+    OrderResponse updateOrderStatus(UUID orderId, UpdateOrderStatusRequest request);
 
 }

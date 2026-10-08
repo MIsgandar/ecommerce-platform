@@ -7,6 +7,7 @@ import com.ecommerce.orderservice.entity.OrderItem;
 import com.ecommerce.orderservice.entity.OrderStatus;
 import com.ecommerce.orderservice.entity.ProductStatus;
 import com.ecommerce.orderservice.exception.InsufficientStockException;
+import com.ecommerce.orderservice.exception.InvalidOrderStatusTransitionException;
 import com.ecommerce.orderservice.exception.OrderNotFoundException;
 import com.ecommerce.orderservice.exception.ProductNotAvailableException;
 import com.ecommerce.orderservice.repository.OrderItemRepo;
@@ -168,6 +169,39 @@ public class OrderServiceImpl implements OrderService {
                 order.getCreatedAt(),
                 order.getUpdatedAt()
         );
+
+    }
+
+    @Override
+    @Transactional
+    public OrderResponse updateOrderStatus(
+            UUID orderId,
+            UpdateOrderStatusRequest request
+    ) {
+
+        Order order = orderRepo.findById(orderId)
+                .orElseThrow(() -> new OrderNotFoundException(
+                        "Order not found: " + orderId
+                ));
+
+        OrderStatus currentStatus = order.getStatus();
+        OrderStatus newStatus = request.status();
+
+
+        if(!currentStatus.canTransitionTo(newStatus)) {
+
+            throw new InvalidOrderStatusTransitionException(
+                    "Invalid order status transition: "
+                    + currentStatus + " -> " + newStatus
+            );
+        }
+
+        order.setStatus(newStatus);
+        order.setUpdatedAt(Instant.now());
+
+        Order savedORder = orderRepo.save(order);
+
+        return mapToOrderResponse(savedORder);
 
     }
 
