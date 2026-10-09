@@ -44,7 +44,9 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.POST, "/api/users/register",
                                                    "/api/users/login",
                                                    "/api/users/products/**",
-                                                   "/api/orders/**")
+                                                   "/api/orders/**",
+                                                   "/api/users")
+
                         .permitAll()
                         .requestMatchers("/api/users/admin")
                         .hasRole("ADMIN")

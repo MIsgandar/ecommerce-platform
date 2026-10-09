@@ -205,6 +205,29 @@ public class OrderServiceImpl implements OrderService {
 
     }
 
+    @Override
+    @Transactional
+    public OrderResponse cancelOrder(UUID orderId) {
 
+        Order order = orderRepo.findById((orderId))
+                .orElseThrow(() -> new OrderNotFoundException(
+                        "Order not found: " + orderId
+                ));
+
+        if (order.getStatus() != OrderStatus.PENDING) {
+
+            throw new InvalidOrderStatusTransitionException(
+                    "Order cannot be canceled from status: " + order.getStatus()
+            );
+        }
+
+        order.setStatus(OrderStatus.CANCELLED);
+        order.setUpdatedAt(Instant.now());
+
+        Order savedOrder = orderRepo.save(order);
+
+        return mapToOrderResponse(savedOrder);
+
+    }
 
 }

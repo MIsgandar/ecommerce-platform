@@ -19,4 +19,5 @@ public interface OrderService {
 
     OrderResponse updateOrderStatus(UUID orderId, UpdateOrderStatusRequest request);
 
+    OrderResponse cancelOrder(UUID orderId);
 }
