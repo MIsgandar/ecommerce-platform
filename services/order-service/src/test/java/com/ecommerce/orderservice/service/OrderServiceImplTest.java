@@ -10,6 +10,9 @@ package com.ecommerce.orderservice.service;
 //Reject cancellation of a confirmed order.
 
 import com.ecommerce.orderservice.client.ProductClient;
+import com.ecommerce.orderservice.dto.CreateOrderItemRequest;
+import com.ecommerce.orderservice.dto.CreateOrderRequest;
+import com.ecommerce.orderservice.dto.ProductResponse;
 import com.ecommerce.orderservice.entity.Order;
 import com.ecommerce.orderservice.entity.OrderStatus;
 import com.ecommerce.orderservice.exception.InvalidOrderStatusTransitionException;
@@ -28,9 +31,9 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -126,6 +129,95 @@ public class OrderServiceImplTest {
                 InvalidOrderStatusTransitionException.class,
                 () -> orderService.cancelOrder(orderId)
         );
+    }
+
+    @Test
+    void createOrderShouldCreateOrderSuccessfully() {
+
+        UUID userId = UUID.randomUUID();
+        UUID productID = UUID.randomUUID();
+        UUID orderId = UUID.randomUUID();
+
+        ProductResponse product = createProduct(
+                productID,
+                "ACTIVE",
+                10,
+                new BigDecimal("50.00")
+        );
+
+        CreateOrderRequest request = new CreateOrderRequest(
+                List.of(new CreateOrderItemRequest(
+                        productID, 2
+                ))
+        );
+
+        when(productClient.getProduct(productID))
+                .thenReturn(product);
+
+        when(orderRepo.save(any(Order.class)))
+                .thenAnswer(invocation -> {
+
+                        Order order = invocation.getArgument(0);
+                        order.setId(orderId);
+                        return  order;
+                });
+
+        when(orderItemRepo.saveAll(anyList()))
+                .thenAnswer(
+                        invocation -> invocation.getArgument(0));
+
+        var response = orderService.createOrder(userId,request);
+
+        assertNotNull(response);
+
+        assertEquals(orderId, response.id());
+        assertEquals(userId, response.userId());
+        assertEquals(OrderStatus.PENDING, response.status());
+
+        assertEquals(
+                new BigDecimal("100.00"),
+                response.totalAmount()
+        );
+
+        assertEquals(1, response.items().size());
+
+        assertEquals(
+                new BigDecimal("50.00"),
+                response.items().get(0).unitPrice()
+        );
+
+        assertEquals(
+                new BigDecimal("100.00"),
+                response.items().get(0).subTotal()
+        );
+
+        verify(productClient).getProduct(productID);
+        verify(orderRepo).save(any(Order.class));
+        verify(orderItemRepo).saveAll(anyList());
+
+    }
+
+    private ProductResponse createProduct(
+            UUID productID,
+            String status,
+            int quantity,
+            BigDecimal price
+    ) {
+
+        return new ProductResponse(
+                productID,
+                "IPHONE-16-BLK-256",
+                "iPhone 16",
+                "Apple smartphone",
+                price,
+                quantity,
+                status,
+                UUID.randomUUID(),
+                "Electronics",
+                Instant.now(),
+                Instant.now()
+        );
+
     }
 
     private Order createOrder(UUID orderId, OrderStatus status) {
