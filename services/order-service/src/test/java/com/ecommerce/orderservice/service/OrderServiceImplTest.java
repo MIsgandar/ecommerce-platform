@@ -197,6 +197,90 @@ public class OrderServiceImplTest {
 
     }
 
+    @Test
+    void createOrderShouldCalculateTotalForMultipleProducts() {
+
+        UUID userId = UUID.randomUUID();
+
+        UUID productId1 = UUID.randomUUID();
+        UUID productId2 = UUID.randomUUID();
+
+        UUID orderId = UUID.randomUUID();
+
+        ProductResponse product1 = createProduct(
+
+                productId1,
+                "ACTIVE",
+                10,
+                new BigDecimal("50.00")
+        );
+
+        ProductResponse product2 = createProduct(
+
+                productId2,
+                "ACTIVE",
+                10,
+                new BigDecimal("20.00")
+        );
+
+        CreateOrderRequest request = new CreateOrderRequest(
+                List.of(
+                        new CreateOrderItemRequest(productId1,2),
+                        new CreateOrderItemRequest(productId2,3))
+        );
+
+        when(productClient.getProduct(productId1))
+                .thenReturn(product1);
+
+        when(productClient.getProduct(productId2))
+                .thenReturn(product2);
+
+        when(orderRepo.save(any(Order.class)))
+                .thenAnswer(invocation -> {
+
+                    Order order = invocation.getArgument(0);
+                    order.setId(orderId);
+                    return order;
+
+                });
+
+        when(orderItemRepo.saveAll(anyList()))
+                .thenAnswer(invocation ->
+
+                        invocation.getArgument(0));
+
+        var response = orderService.createOrder(userId, request);
+
+        assertNotNull(response);
+
+        assertEquals(orderId, response.id());
+        assertEquals(2, response.items().size());
+
+        assertEquals(
+                new BigDecimal("160.00"),
+                response.totalAmount()
+        );
+
+        assertEquals(
+                new BigDecimal("100.00"),
+                response.items().get(0).subTotal()
+        );
+
+        assertEquals(
+                new BigDecimal("60.00"),
+                response.items().get(1).subTotal()
+        );
+
+        verify(productClient).getProduct(productId1);
+        verify(productClient).getProduct(productId2);
+
+        verify(orderRepo).save(any(Order.class));
+        verify(orderItemRepo).saveAll(anyList());
+
+    }
+
+
+
     private ProductResponse createProduct(
             UUID productID,
             String status,
